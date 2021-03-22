@@ -23,7 +23,6 @@ FLAGS=(
   -s EXTRA_EXPORTED_RUNTIME_METHODS="[FS, cwrap, ccall, setValue, writeAsciiToMemory]"   # export preamble funcs
   -s INITIAL_MEMORY=2146435072                  # 64 KB * 1024 * 16 * 2047 = 2146435072 bytes ~= 2 GB
   -lworkerfs.js
-  $OPTIM_FLAGS
 )
 echo "FFMPEG_EM_FLAGS=${FLAGS[@]}"
 emcc "${FLAGS[@]}"
