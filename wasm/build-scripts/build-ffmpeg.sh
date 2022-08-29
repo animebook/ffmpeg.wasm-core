@@ -11,7 +11,10 @@ if [[ "$FFMPEG_ST" != "yes" ]]; then
     -s USE_PTHREADS=1                             # enable pthreads support
     -s PROXY_TO_PTHREAD=1                         # detach main() from browser/UI main thread
     -o wasm/packages/core/dist/ffmpeg-core.js
-		-s INITIAL_MEMORY=1073741824                  # 1GB
+
+    -s INITIAL_MEMORY=536870912                  # 536870912 bytes ~= .5 GB
+    -s MAXIMUM_MEMORY=2146435072                  # 64 KB * 1024 * 16 * 2047 = 2146435072 bytes 
+    -s ALLOW_MEMORY_GROWTH=1
   )
 else
   mkdir -p wasm/packages/core-st/dist
@@ -35,10 +38,11 @@ FLAGS=(
   -s MODULARIZE=1                               # use modularized version to be more flexible
   -s EXPORT_NAME="createFFmpegCore"             # assign export name for browser
   -s EXPORTED_FUNCTIONS="$EXPORTED_FUNCTIONS"  # export main and proxy_main funcs
-  -s EXTRA_EXPORTED_RUNTIME_METHODS="[FS, cwrap, ccall, setValue, writeAsciiToMemory, lengthBytesUTF8, stringToUTF8, UTF8ToString]"   # export preamble funcs
+  -s EXTRA_EXPORTED_RUNTIME_METHODS="[FS, FS_mount, FS_unmount, FS_filesystems, cwrap, ccall, setValue, writeAsciiToMemory, lengthBytesUTF8, stringToUTF8, UTF8ToString]"   # export preamble funcs
+  -lworkerfs.js
   --post-js wasm/src/post.js
   --pre-js wasm/src/pre.js
-  $OPTIM_FLAGS
+  # $OPTIM_FLAGS
   ${EXTRA_FLAGS[@]}
 )
 echo "FFMPEG_EM_FLAGS=${FLAGS[@]}"
