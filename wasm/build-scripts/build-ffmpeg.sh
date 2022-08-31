@@ -5,7 +5,6 @@ source $(dirname $0)/var.sh
 
 if [[ "$FFMPEG_ST" != "yes" ]]; then
   mkdir -p wasm/packages/core/dist
-  EXPORTED_FUNCTIONS="[_main, _proxy_main]"
   EXTRA_FLAGS=(
     -pthread
     -s USE_PTHREADS=1                             # enable pthreads support
@@ -18,7 +17,6 @@ if [[ "$FFMPEG_ST" != "yes" ]]; then
   )
 else
   mkdir -p wasm/packages/core-st/dist
-  EXPORTED_FUNCTIONS="[_main]"
   EXTRA_FLAGS=(
     -o wasm/packages/core-st/dist/ffmpeg-core.js
 		-s INITIAL_MEMORY=33554432                   # 32MB
@@ -34,15 +32,15 @@ FLAGS=(
   fftools/ffmpeg_opt.c fftools/ffmpeg_filter.c fftools/ffmpeg_hw.c fftools/cmdutils.c fftools/ffmpeg.c
   -s USE_SDL=2                                  # use SDL2
   -s INVOKE_RUN=0                               # not to run the main() in the beginning
-  -s EXIT_RUNTIME=1                             # exit runtime after execution
+  -s EXIT_RUNTIME=0                             # exit runtime after execution
   -s MODULARIZE=1                               # use modularized version to be more flexible
   -s EXPORT_NAME="createFFmpegCore"             # assign export name for browser
-  -s EXPORTED_FUNCTIONS="$EXPORTED_FUNCTIONS"  # export main and proxy_main funcs
-  -s EXTRA_EXPORTED_RUNTIME_METHODS="[FS, FS_mount, FS_unmount, FS_filesystems, cwrap, ccall, setValue, writeAsciiToMemory, lengthBytesUTF8, stringToUTF8, UTF8ToString]"   # export preamble funcs
+  -s EXPORTED_FUNCTIONS="[_main]"  # export main
+  -s EXPORTED_RUNTIME_METHODS=FS,FS_mount,FS_unmount,FS_filesystems,cwrap,ccall,setValue,writeAsciiToMemory,lengthBytesUTF8,stringToUTF8,UTF8ToString # export preamble funcs
   -lworkerfs.js
   --post-js wasm/src/post.js
   --pre-js wasm/src/pre.js
-  # $OPTIM_FLAGS
+  $OPTIM_FLAGS
   ${EXTRA_FLAGS[@]}
 )
 echo "FFMPEG_EM_FLAGS=${FLAGS[@]}"
